@@ -200,3 +200,31 @@ Difference from Parallelism:
 3. Assigns tasks to suitable LLMs or agents
 4. Tasks run in parallel
 5. Results are combined and returned
+
+
+### Node
+- A **unit of work** in the workflow  
+- Reads from **state** and produces output to update **state**
+
+### Edge
+- Defines the **flow between nodes**  
+- Can be **conditional, looping, or parallel**
+
+### State
+- Shared object across all nodes  
+- Persists automatically for **resumability**
+
+### Reducer
+- Determines **how each key in the state is updated**  
+- Each key can have a different strategy:  
+  - **Overwrite** – replace old value  
+  - **Merge** – combine with existing value  
+  - **Add** – append to existing value  
+
+**Example:**
+```python
+state = {
+  'essay_text': '...',   # reducer: add/append
+  'topic': 'AI',         # reducer: overwrite
+  'language': 'EN'       # reducer: overwrite
+}
