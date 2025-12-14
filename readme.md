@@ -83,3 +83,120 @@ LangGraph is an **orchestration framework** for building **stateful, parallelism
 ### Subgraph
 - Graph inside another graph
 
+
+## 1. Workflow
+
+A **workflow** is a **series of tasks** executed in a defined order to achieve a goal.
+
+- Tasks may depend on each other
+- Can be simple or complex
+- Not LLM-specific
+
+---
+
+## 2. LLM Workflow
+
+An **LLM workflow** is a workflow where **LLMs are involved in one or more steps**.
+
+It may include:
+- Prompting
+- Reasoning
+- Tool calling
+- Memory access
+- Decision making
+
+Characteristics:
+- Can be **linear**
+- Can be **branched**
+- Can include **loops & retries**
+- Can support **multi-agent communication**
+- Can route between different LLMs or sub-workflows
+
+---
+
+## 3. Prompt Chaining
+
+**Prompt chaining** means calling **multiple LLM nodes in sequence**, where the output of one LLM becomes the input of the next.
+
+Used when:
+- Task is complex
+- Task can be broken into smaller steps
+- Validation or checks are needed between steps
+
+### Example
+Goal: Generate a report
+
+1. LLM 1 → Generate report outline  
+2. LLM 2 → Write report using the outline  
+3. Validation step →  
+   - If report > 5000 words → stop or modify  
+   - Else → continue
+
+This pattern is called **Prompt Chaining**.
+
+---
+
+## 4. Routing
+
+**Routing** means forwarding work to the **correct LLM or workflow** based on user intent.
+
+### Example
+System has 3 workflows:
+- Sales information
+- Platform information
+- Orders information
+
+Flow:
+1. User sends a query
+2. Intent analyzer LLM classifies the query
+3. Query is routed to the relevant workflow
+4. Workflow executes and returns response
+
+Routing helps:
+- Scale systems
+- Keep logic clean
+- Avoid unnecessary LLM calls
+
+---
+
+## 5. Parallelism
+
+**Parallelism** means breaking a task into **independent subtasks** and executing them **at the same time**.
+
+Used when:
+- Tasks do NOT depend on each other
+- Faster execution is needed
+
+### Example: Content Moderation
+
+Goal: Check if content is appropriate
+
+Subtasks (run in parallel):
+- Community guidelines check
+- Misinformation check
+- Sexual content check
+
+Flow:
+1. All checks run simultaneously
+2. Results are sent to a decider
+3. Decider determines if content is acceptable
+
+---
+
+## 6. Orchestrator Workflow
+
+An **Orchestrator Workflow** dynamically decides:
+- Which LLMs to use
+- Which tasks to run
+- What to execute in parallel
+
+Difference from Parallelism:
+- In **parallelism**, tasks are predefined
+- In **orchestration**, the system decides tasks at runtime
+
+### Example
+1. User submits a query
+2. Orchestrator analyzes the query
+3. Assigns tasks to suitable LLMs or agents
+4. Tasks run in parallel
+5. Results are combined and returned
