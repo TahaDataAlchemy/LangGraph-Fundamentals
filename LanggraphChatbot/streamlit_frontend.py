@@ -35,7 +35,6 @@ def generate_conversation_title(first_message:str) -> str:
     try:
         title_prompt = f"""Generate a short, concise title (maximum 5 words) for a conversation that starts with: "{first_message[:100]}"
             Only respond with the title, nothing else."""
-        temp_thread = str(uuid.uuid4())
         response = llm.invoke({"message":[HumanMessage(content=title_prompt)]})
         title = response["message"][-1].content.strip().replace('"','').replace("'","")
         return title[:50]
