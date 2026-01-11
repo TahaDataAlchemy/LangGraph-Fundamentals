@@ -1,5 +1,5 @@
 import streamlit as st
-from langgraph_backend import chatbot
+from langgraph_backend import chatbot,llm
 from langchain_core.messages import HumanMessage
 import uuid
 
@@ -14,9 +14,33 @@ def reset_chat():
     add_thread(st.session_state['thread_id'])
     st.session_state['chat_history'] = []
 
-def add_thread(thread_id):
+def add_thread(thread_id,title = None):
     if thread_id not in st.session_state["chat_threads"]:
         st.session_state['chat_threads'].append(thread_id)
+        if title:
+            st.session_state["thread_titles"][thread_id] = title
+        else:
+            st.session_state["thread_titles"][thread_id] = "New Conversation"
+
+def update_thread_title(thread_id,first_message):
+    if st.session_state['thread_titles'][thread_id] == "New Conversation":
+        title = generate_conversation_title(first_message)
+        st.session_state["thread_titles"][thread_id] = title
+
+def load_conversation(thread_id):
+    state = chatbot.get_state(config={"configurable":{"thread_id":thread_id}})
+    return state.values.get("messages", [])
+
+def generate_conversation_title(first_message:str) -> str:
+    try:
+        title_prompt = f"""Generate a short, concise title (maximum 5 words) for a conversation that starts with: "{first_message[:100]}"
+            Only respond with the title, nothing else."""
+        temp_thread = str(uuid.uuid4())
+        response = llm.invoke({"message":[HumanMessage(content=title_prompt)]})
+        title = response["message"][-1].content.strip().replace('"','').replace("'","")
+        return title[:50]
+    except:
+        return first_message[:30] + "..."
 
 
 if 'chat_history' not in st.session_state:
@@ -29,6 +53,10 @@ if "thread_id" not in st.session_state:
 if "chat_threads" not in st.session_state:
     st.session_state["chat_threads"] = []
 
+if "thread_titles" not in st.session_state:
+    st.session_state["thread_titles"] = {}
+
+
 add_thread(st.session_state["thread_id"])
 
 
@@ -39,12 +67,24 @@ if st.sidebar.button("New Chat"):
 
 st.sidebar.header("My conversations")
 
-for thread_id in st.session_state["chat_threads"]:
-    st.sidebar.button(str(thread_id))
+for thread_id in st.session_state["chat_threads"][::-1]:
+    title = st.session_state["thread_titles"].get(thread_id,"Untitled")
+    if st.sidebar.button(title,key=f"btn_{thread_id}"):
+        st.session_state["thread_id"] = thread_id
+        messages =load_conversation(thread_id)
 
-chat_history = []
+        temp_messages = []
+        for msg in messages:
+            if isinstance(msg,HumanMessage):
+                role='user'
+            else:
+                role='assistant'
+            temp_messages.append({"role":role,"content":msg.content})
+        st.session_state["chat_history"] = temp_messages
+       
+       
+
 for message in st.session_state["chat_history"]:
-    print(message)
     with st.chat_message(message["role"]):
         st.text(message["content"])
 
@@ -55,6 +95,8 @@ if user_input:
         st.session_state["chat_history"].append({"role":"user","content":user_input})
         st.text(user_input)
 
+    if len(st.session_state["chat_history"]) == 1:
+        update_thread_title(st.session_state["thread_id"],user_input)
     CONFIG = {'configurable': {'thread_id': st.session_state["thread_id"]}}
 
     with st.chat_message("assistant"):
@@ -65,4 +107,4 @@ if user_input:
                 stream_mode="messages"
             )
         )
-    st.session_state["chat_history"].append({"role":"assistant","content":ai_message})
+        st.session_state["chat_history"].append({"role":"assistant","content":ai_message})
