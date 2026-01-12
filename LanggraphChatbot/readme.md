@@ -142,5 +142,6 @@ streamlit run streamlit_frontend.py
 ---
 
 ## UI
+
 <img width="1912" height="915" alt="image" src="https://github.com/user-attachments/assets/4363944f-31bb-4a85-8edb-4f0af551a418" />
 
