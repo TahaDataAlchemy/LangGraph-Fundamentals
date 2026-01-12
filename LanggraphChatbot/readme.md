@@ -127,6 +127,18 @@ st.chat_message(role)
 - LangChain  
 - Python  
 
+
+## ▶️ How to Run the Project
+
+Follow the steps below to run the LangGraph Streamlit Chatbot locally.
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/TahaDataAlchemy/LangGraph-Fundamentals.git
+cd LanggraphChatbot
+OPENAI_API_KEY=your_openai_api_key_here
+streamlit run streamlit_frontend.py
+
 ---
 
 ## UI
