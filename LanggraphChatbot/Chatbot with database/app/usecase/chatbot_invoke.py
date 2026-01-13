@@ -2,8 +2,8 @@ from app.data.chat_state import ChatState
 from app.usecase.chat_node import chat_node
 from langgraph.graph import START,END,StateGraph
 from langgraph.checkpoint.sqlite import SqliteSaver
-from infra.config import settings
-from infra.db_conn import conn
+from app.infra.config import settings
+from app.infra.db_conn import conn
 
 checkpointer = SqliteSaver(conn=conn)
 graph = StateGraph(ChatState)
